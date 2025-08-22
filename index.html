@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccountingAI - Smart Accounting for Small Businesses</title>
+    <meta name="description" content="AI-powered accounting with human verification. Affordable, accurate financial management for small businesses.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: "#f8f4e8",
+                            DEFAULT: "#e6d5b8",
+                            dark: "#d2b48c"
+                        },
+                        accent: {
+                            light: "#a67c52",
+                            DEFAULT: "#8b5a2b",
+                            dark: "#5d4037"
+                        },
+                        text: {
+                            light: "#5a5a5a",
+                            DEFAULT: "#333333",
+                            dark: "#1a1a1a"
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            color: #333;
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card {
+            transition: all 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calculator {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .hero-image {
+            background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .logo-icon {
+            background-color: #8b5a2b;
+            color: white;
+        }
+    </style>
+</head>
+<body class="font-sans bg-primary-light text-text-DEFAULT">
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Login to Your Account</h3>
+                <button id="closeLoginModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-DEFAULT" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-DEFAULT" required>
+                </div>
+                <button type="submit" class="btn-primary w-full bg-accent-DEFAULT text-white py-3 rounded-lg font-medium mb-4">Login</button>
+                <p class="text-center text-sm">Don't have an account? <a href="#" class="text-accent-DEFAULT font-medium">Sign up</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard (hidden by default) -->
+    <div id="dashboard" class="hidden">
+        <header class="bg-white shadow-sm">
+            <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="logo-icon w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-calculator text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold text-accent-dark">AccountingAI Dashboard</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="logoutBtn" class="text-accent-dark hover:text-accent-light">Logout</button>
+                    <div class="w-10 h-10 rounded-full bg-accent-DEFAULT flex items-center justify-center text-white font-bold">U</div>
+                </div>
+            </nav>
+        </header>
+
+        <main class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Summary Cards -->
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-medium mb-2">Current Balance</h3>
+                    <p class="text-3xl font-bold text-accent-DEFAULT">$12,456.78</p>
+                    <p class="text-sm text-green-600 mt-1">+2.5% from last month</p>
+                </div>
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-medium mb-2">Monthly Expenses</h3>
+                    <p class="text-3xl font-bold text-accent-DEFAULT">$3,210.45</p>
+                    <p class="text-sm text-red-600 mt-1">+5.2% from last month</p>
+                </div>
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-medium mb-2">Tax Estimate</h3>
+                    <p class="text-3xl font-bold text-accent-DEFAULT">$2,145.00</p>
+                    <p class="text-sm text-green-600 mt-1">$320 in potential savings</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Main Chart -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">Financial Overview</h2>
+                        <select class="border rounded-lg px-3 py-1 text-sm">
+                            <option>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>This Year</option>
+                        </select>
+                    </div>
+                    <canvas id="mainChart" height="300"></canvas>
+                </div>
+
+                <!-- Quick Tools -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-xl font-bold mb-4">Quick Tools</h2>
+                    <div class="space-y-4">
+                        <button class="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-primary-light">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-accent-light text-white flex items-center justify-center mr-3">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                                <span>Generate Invoice</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-primary-light">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-accent-light text-white flex items-center justify-center mr-3">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <span>Expense Tracker</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-primary-light">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-accent-light text-white flex items-center justify-center mr-3">
+                                    <i class="fas fa-calculator"></i>
+                                </div>
+                                <span>Tax Calculator</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-primary-light">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-accent-light text-white flex items-center justify-center mr-3">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                                <span>Financial Reports</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculators Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Tax Calculator -->
+                <div class="calculator bg-white p-6 rounded-lg">
+                    <h2 class="text-xl font-bold mb-4">Tax Calculator</h2>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Annual Income ($)</label>
+                        <input type="number" id="annualIncome" class="w-full px-4 py-2 border rounded-lg mb-2" placeholder="50000">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Business Expenses ($)</label>
+                        <input type="number" id="businessExpenses" class="w-full px-4 py-2 border rounded-lg mb-2" placeholder="10000">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Tax Year</label>
+                        <select id="taxYear" class="w-full px-4 py-2 border rounded-lg mb-2">
+                            <option>2023</option>
+                            <option>2024</option>
+                        </select>
+                    </div>
+                    <button id="calculateTax" class="btn-primary w-full bg-accent-DEFAULT text-white py-3 rounded-lg font-medium mb-4">Calculate Tax</button>
+                    <div id="taxResult" class="p-4 bg-primary-light rounded-lg hidden">
+                        <h3 class="font-bold mb-2">Estimated Tax Liability</h3>
+                        <p class="text-2xl font-bold text-accent-DEFAULT">$0.00</p>
+                        <p class="text-sm mt-2">Based on current tax brackets and deductions</p>
+                    </div>
+                </div>
+
+                <!-- Profit Calculator -->
+                <div class="calculator bg-white p-6 rounded-lg">
+                    <h2 class="text-xl font-bold mb-4">Profit Calculator</h2>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Revenue ($)</label>
+                        <input type="number" id="revenue" class="w-full px-4 py-2 border rounded-lg mb-2" placeholder="10000">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Cost of Goods Sold ($)</label>
+                        <input type="number" id="cogs" class="w-full px-4 py-2 border rounded-lg mb-2" placeholder="4000">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Operating Expenses ($)</label>
+                        <input type="number" id="expenses" class="w-full px-4 py-2 border rounded-lg mb-2" placeholder="3000">
+                    </div>
+                    <button id="calculateProfit" class="btn-primary w-full bg-accent-DEFAULT text-white py-3 rounded-lg font-medium mb-4">Calculate Profit</button>
+                    <div id="profitResult" class="p-4 bg-primary-light rounded-lg hidden">
+                        <h3 class="font-bold mb-2">Profit Analysis</h3>
+                        <div class="flex justify-between mb-1">
+                            <span>Gross Profit:</span>
+                            <span class="font-medium">$0.00</span>
+                        </div>
+                        <div class="flex justify-between mb-1">
+                            <span>Operating Profit:</span>
+                            <span class="font-medium">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Profit Margin:</span>
+                            <span class="font-medium">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Recent Transactions</h2>
+                    <button class="text-sm text-accent-DEFAULT font-medium">View All</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-3 px-4">Date</th>
+                                <th class="text-left py-3 px-4">Description</th>
+                                <th class="text-left py-3 px-4">Category</th>
+                                <th class="text-right py-3 px-4">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b hover:bg-primary-light">
+                                <td class="py-3 px-4">Jun 15, 2023</td>
+                                <td class="py-3 px-4">Client Payment - Web Design</td>
+                                <td class="py-3 px-4">Income</td>
+                                <td class="py-3 px-4 text-right text-green-600 font-medium">$1,250.00</td>
+                            </tr>
+                            <tr class="border-b hover:bg-primary-light">
+                                <td class="py-3 px-4">Jun 14, 2023</td>
+                                <td class="py-3 px-4">Office Supplies</td>
+                                <td class="py-3 px-4">Expenses</td>
+                                <td class="py-3 px-4 text-right text-red-600 font-medium">$87.45</td>
+                            </tr>
+                            <tr class="border-b hover:bg-primary-light">
+                                <td class="py-3 px-4">Jun 12, 2023</td>
+                                <td class="py-3 px-4">Software Subscription</td>
+                                <td class="py-3 px-4">Expenses</td>
+                                <td class="py-3 px-4 text-right text-red-600 font-medium">$29.99</td>
+                            </tr>
+                            <tr class="border-b hover:bg-primary-light">
+                                <td class="py-3 px-4">Jun 10, 2023</td>
+                                <td class="py-3 px-4">Consulting Fee</td>
+                                <td class="py-3 px-4">Income</td>
+                                <td class="py-3 px-4 text-right text-green-600 font-medium">$500.00</td>
+                            </tr>
+                            <tr class="hover:bg-primary-light">
+                                <td class="py-3 px-4">Jun 8, 2023</td>
+                                <td class="py-3 px-4">Internet Bill</td>
+                                <td class="py-3 px-4">Utilities</td>
+                                <td class="py-3 px-4 text-right text-red-600 font-medium">$79.99</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="logo-icon w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-calculator text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold text-accent-dark">AccountingAI</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#features" class="hover:text-accent-light transition">Features</a>
+                    <a href="#pricing" class="hover:text-accent-light transition">Pricing</a>
+                    <a href="#how-it-works" class="hover:text-accent-light transition">How It Works</a>
+                    <a href="#testimonials" class="hover:text-accent-light transition">Testimonials</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="loginBtn" class="text-accent-dark hover:text-accent-light">Login</button>
+                    <a href="#pricing" class="btn-primary bg-accent-DEFAULT text-white px-4 py-2 rounded-lg font-medium">Get Started</a>
+                </div>
+                <button class="md:hidden text-accent-dark">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="container mx-auto px-4 py-16 md:py-24">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6">Smart Accounting <span class="text-accent-DEFAULT">Powered by AI</span></h1>
+                    <p class="text-lg mb-8">Get accurate, affordable accounting services powered by AI and verified by certified accountants. Perfect for small businesses and online entrepreneurs.</p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#pricing" class="btn-primary bg-accent-DEFAULT text-white px-6 py-3 rounded-lg font-medium text-center">Start Free Trial</a>
+                        <a href="#how-it-works" class="btn-primary border-2 border-accent-DEFAULT text-accent-DEFAULT px-6 py-3 rounded-lg font-medium text-center">See How It Works</a>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <div class="hero-image h-80 md:h-96 rounded-lg shadow-xl w-full"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="bg-white py-16">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4">Smart Accounting Features</h2>
+                    <p class="text-lg max-w-2xl mx-auto">Our AI does the heavy lifting, while real accountants ensure everything is perfect.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="feature-card bg-primary-light p-8 rounded-lg transition duration-300">
+                        <div class="bg-accent-DEFAULT text-white w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-robot text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">AI-Powered Automation</h3>
+                        <p class="mb-4">Our AI handles repetitive tasks like expense categorization and invoice processing with 95% accuracy.</p>
+                        <a href="#" class="text-accent-DEFAULT font-medium flex items-center">
+                            Learn more <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Feature 2 -->
+                    <div class="feature-card bg-primary-light p-8 rounded-lg transition duration-300">
+                        <div class="bg-accent-DEFAULT text-white w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-user-tie text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Human Verification</h3>
+                        <p class="mb-4">Every AI-generated report is reviewed by certified accountants to ensure complete accuracy.</p>
+                        <a href="#" class="text-accent-DEFAULT font-medium flex items-center">
+                            Learn more <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Feature 3 -->
+                    <div class="feature-card bg-primary-light p-8 rounded-lg transition duration-300">
+                        <div class="bg-accent-DEFAULT text-white w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-bolt text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Real-Time Insights</h3>
+                        <p class="mb-4">Get up-to-the-minute financial reports and cash flow predictions to make better business decisions.</p>
+                        <a href="#" class="text-accent-DEFAULT font-medium flex items-center">
+                            Learn more <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="py-16 bg-primary-DEFAULT">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4">How AccountingAI Works</h2>
+                    <p class="text-lg max-w-2xl mx-auto">Simple, fast, and reliable accounting in just three steps.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Step 1 -->
+                    <div class="text-center">
+                        <div class="bg-accent-DEFAULT text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">1</div>
+                        <h3 class="text-xl font-bold mb-3">Connect Your Accounts</h3>
+                        <p>Securely link your bank accounts, payment processors, and other financial tools.</p>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="text-center">
+                        <div class="bg-accent-DEFAULT text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">2</div>
+                        <h3 class="text-xl font-bold mb-3">AI Does the Work</h3>
+                        <p>Our AI categorizes transactions, generates reports, and identifies tax savings.</p>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="text-center">
+                        <div class="bg-accent-DEFAULT text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">3</div>
+                        <h3 class="text-xl font-bold mb-3">Accountant Review</h3>
+                        <p>A certified accountant reviews everything before you file or make decisions.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4">Simple, Affordable Pricing</h2>
+                    <p class="text-lg max-w-2xl mx-auto">Get professional accounting at a fraction of traditional costs.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <!-- Basic Plan -->
+                    <div class="border border-primary-DEFAULT rounded-lg p-8">
+                        <h3 class="text-xl font-bold mb-4">Starter</h3>
+                        <p class="text-4xl font-bold mb-6">$29<span class="text-lg font-normal">/month</span></p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> AI-powered bookkeeping</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Monthly financial reports</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Expense categorization</li>
+                            <li class="flex items-center text-gray-400"><i class="fas fa-times mr-2"></i> Accountant review</li>
+                            <li class="flex items-center text-gray-400"><i class="fas fa-times mr-2"></i> Tax preparation</li>
+                        </ul>
+                        <button class="btn-primary w-full bg-accent-DEFAULT text-white py-3 rounded-lg font-medium">Start Free Trial</button>
+                    </div>
+                    
+                    <!-- Popular Plan -->
+                    <div class="border-2 border-accent-DEFAULT rounded-lg p-8 relative">
+                        <div class="absolute top-0 right-0 bg-accent-DEFAULT text-white px-4 py-1 rounded-bl-lg rounded-tr-lg text-sm font-medium">Most Popular</div>
+                        <h3 class="text-xl font-bold mb-4">Professional</h3>
+                        <p class="text-4xl font-bold mb-6">$79<span class="text-lg font-normal">/month</span></p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Everything in Starter</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Quarterly accountant review</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Tax estimates</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Deduction finder</li>
+                            <li class="flex items-center text-gray-400"><i class="fas fa-times mr-2"></i> Full tax preparation</li>
+                        </ul>
+                        <button class="btn-primary w-full bg-accent-DEFAULT text-white py-3 rounded-lg font-medium hover:bg-accent-dark">Start Free Trial</button>
+                    </div>
+                    
+                    <!-- Premium Plan -->
+                    <div class="border border-primary-DEFAULT rounded-lg p-8">
+                        <h3 class="text-xl font-bold mb-4">Business</h3>
+                        <p class="text-4xl font-bold mb-6">$149<span class="text-lg font-normal">/month</span></p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Everything in Professional</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Monthly accountant review</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Full tax preparation</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Priority support</li>
+                            <li class="flex items-center"><i class="fas fa-check text-accent-DEFAULT mr-2"></i> Financial consulting</li>
+                        </ul>
+                        <button class="btn-primary w-full bg-accent-DEFAULT text-white py-3 rounded-lg font-medium">Start Free Trial</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="py-16 bg-primary-light">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4">What Our Customers Say</h2>
+                    <p class="text-lg max-w-2xl mx-auto">Trusted by thousands of small businesses and entrepreneurs.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Testimonial 1 -->
+                    <div class="bg-white p-8 rounded-lg shadow-sm">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-accent-DEFAULT flex items-center justify-center text-white font-bold mr-4">S</div>
+                            <div>
+                                <h4 class="font-bold">Sarah J.</h4>
+                                <p class="text-sm text-gray-600">E-commerce Store Owner</p>
+                            </div>
+                        </div>
+                        <p class="italic">"AccountingAI saved me over 10 hours per month on bookkeeping. The AI catches things I would have missed, and having a real accountant review everything gives me peace of mind."</p>
+                        <div class="flex mt-4 text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 2 -->
+                    <div class="bg-white p-8 rounded-lg shadow-sm">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-accent-DEFAULT flex items-center justify-center text-white font-bold mr-4">M</div>
+                            <div>
+                                <h4 class="font-bold">Michael T.</h4>
+                                <p class="text-sm text-gray-600">Freelance Designer</p>
+                            </div>
+                        </div>
+                        <p class="italic">"As a freelancer, I was spending more time on accounting than design. AccountingAI automated 90% of the work and found tax deductions I didn't know existed!"</p>
+                        <div class="flex mt-4 text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 3 -->
+                    <div class="bg-white p-8 rounded-lg shadow-sm">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-accent-DEFAULT flex items-center justify-center text-white font-bold mr-4">L</div>
+                            <div>
+                                <h4 class="font-bold">Lisa M.</h4>
+                                <p class="text-sm text-gray-600">Small Business Owner</p>
+                            </div>
+                        </div>
+                        <p class="italic">"The combination of AI speed and human expertise is perfect. I get reports faster than with my old accountant at half the price."</p>
+                        <div class="flex mt-4 text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-16 bg-accent-DEFAULT text-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold mb-6">Ready to Simplify Your Accounting?</h2>
+                <p class="text-xl mb-8 max-w-2xl mx-auto">Join thousands of businesses saving time and money with AI-powered accounting.</p>
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#pricing" class="btn-primary bg-white text-accent-DEFAULT px-8 py-3 rounded-lg font-medium">Get Started Now</a>
+                    <a href="#" class="btn-primary border-2 border-white text-white px-8 py-3 rounded-lg font-medium">Schedule a Demo</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-accent-dark text-white py-12">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">AccountingAI</h3>
+                        <p class="mb-4">AI-powered accounting made simple, fast, and affordable for small businesses.</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-white hover:text-primary-light"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-white hover:text-primary-light"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="text-white hover:text-primary-light"><i class="fab fa-linkedin"></i></a>
+                            <a href="#" class="text-white hover:text-primary-light"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">Product</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-primary-light">Features</a></li>
+                            <li><a href="#" class="hover:text-primary-light">Pricing</a></li>
+                            <li><a href="#" class="hover:text-primary-light">How It Works</a></li>
+                            <li><a href="#" class="hover:text-primary-light">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">Company</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-primary-light">About Us</a></li>
+                            <li><a href="#" class="hover:text-primary-light">Careers</a></li>
+                            <li><a href="#" class="hover:text-primary-light">Blog</a></li>
+                            <li><a href="#" class="hover:text-primary-light">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">Resources</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-primary-light">Help Center</a></li>
+                            <li><a href="#" class="hover:text-primary-light">Accounting Guides</a></li>
+                            <li><a href="#" class="hover:text-primary-light">Tax Resources</a></li>
+                            <li><a href="#" class="hover:text-primary-light">Webinars</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pt-8 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center">
+                    <p class="mb-4 md:mb-0">© 2023 AccountingAI. All rights reserved.</p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="hover:text-primary-light">Privacy Policy</a>
+                        <a href="#" class="hover:text-primary-light">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const loginForm = document.getElementById('loginForm');
+        const dashboard = document.getElementById('dashboard');
+        const mainContent = document.getElementById('mainContent');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Login Modal
+        loginBtn.addEventListener('click', () => {
+            loginModal.classList.remove('hidden');
+        });
+        
+        closeLoginModal.addEventListener('click', () => {
+            loginModal.classList.add('hidden');
+        });
+        
+        // Login Form Submission
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Simulate login
+            loginModal.classList.add('hidden');
+            mainContent.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            
+            // Initialize charts
+            initCharts();
+        });
+        
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            dashboard.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+        });
+        
+        // Initialize Charts
+        function initCharts() {
+            // Main Chart
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: [4500, 5200, 4800, 6200, 7500, 8200],
+                            borderColor: '#8b5a2b',
+                            backgroundColor: 'rgba(139, 90, 43, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Expenses',
+                            data: [3200, 2800, 3100, 3900, 4200, 3800],
+                            borderColor: '#a67c52',
+                            backgroundColor: 'rgba(166, 124, 82, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Calculator Functions
+        document.getElementById('calculateTax').addEventListener('click', function() {
+            const income = parseFloat(document.getElementById('annualIncome').value) || 0;
+            const expenses = parseFloat(document.getElementById('businessExpenses').value) || 0;
+            const taxableIncome = income - expenses;
+            let tax = 0;
+            
+            // Simplified tax calculation (US progressive tax brackets)
+            if (taxableIncome > 0) {
+                if (taxableIncome <= 50000) {
+                    tax = taxableIncome * 0.12;
+                } else if (taxableIncome <= 100000) {
+                    tax = 6000 + (taxableIncome - 50000) * 0.22;
+                } else {
+                    tax = 17000 + (taxableIncome - 100000) * 0.24;
+                }
+            }
+            
+            const resultDiv = document.getElementById('taxResult');
+            resultDiv.querySelector('p.text-2xl').textContent = '$' + tax.toFixed(2);
+            resultDiv.classList.remove('hidden');
+        });
+        
+        document.getElementById('calculateProfit').addEventListener('click', function() {
+            const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+            const cogs = parseFloat(document.getElementById('cogs').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            
+            const grossProfit = revenue - cogs;
+            const operatingProfit = grossProfit - expenses;
+            const profitMargin = revenue > 0 ? (operatingProfit / revenue) * 100 : 0;
+            
+            const resultDiv = document.getElementById('profitResult');
+            resultDiv.querySelectorAll('span.font-medium')[0].textContent = '$' + grossProfit.toFixed(2);
+            resultDiv.querySelectorAll('span.font-medium')[1].textContent = '$' + operatingProfit.toFixed(2);
+            resultDiv.querySelectorAll('span.font-medium')[2].textContent = profitMargin.toFixed(1) + '%';
+            resultDiv.classList.remove('hidden');
+        });
+        
+        // Mobile menu toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.querySelector('.md\\:hidden');
+            const mobileMenu = document.querySelector('.md\\:flex.space-x-8');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                    mobileMenu.classList.toggle('flex');
+                    mobileMenu.classList.toggle('flex-col');
+                    mobileMenu.classList.toggle('absolute');
+                    mobileMenu.classList.toggle('top-16');
+                    mobileMenu.classList.toggle('right-4');
+                    mobileMenu.classList.toggle('bg-white');
+                    mobileMenu.classList.toggle('p-4');
+                    mobileMenu.classList.toggle('rounded-lg');
+                    mobileMenu.classList.toggle('shadow-lg');
+                });
+            }
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
